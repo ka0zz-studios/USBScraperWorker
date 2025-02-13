@@ -40,16 +40,16 @@ public class Worker : BackgroundService
             {
                 _logger.LogInformation($"USB Drive detected: {drive.VolumeLabel} ({drive.Name})");
                 string targetDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "ScrapedSticks", drive.VolumeLabel);
-                if (Directory.Exists(targetDirectory))
-                {
-                    int version = 1;
-                    string newTargetDirectory;
-                    do
-                    {
-                        newTargetDirectory = $"{targetDirectory} ({version++})";
-                    } while (Directory.Exists(newTargetDirectory));
-                    targetDirectory = newTargetDirectory;
-                }
+                //if (Directory.Exists(targetDirectory))
+                //{
+                //    int version = 1;
+                //    string newTargetDirectory;
+                //    do
+                //    {                                                                                         This once was a feature to create a new directory with a version number if the directory already exists
+                //      newTargetDirectory = $"{targetDirectory}/{drive.VolumeLabel} ({version++})";            Now the program just overwrites the existing directory so that there is always only one directory per USB stick
+                //    } while (Directory.Exists(newTargetDirectory));
+                //    targetDirectory = newTargetDirectory;
+                //}
                 Directory.CreateDirectory(targetDirectory);
                 _logger.LogInformation($"Scraping USB Drive to: {targetDirectory}");
                 CopyDirectory(drive.RootDirectory.FullName, targetDirectory);
@@ -64,8 +64,9 @@ public class Worker : BackgroundService
         Directory.CreateDirectory(targetDir);
         _logger.LogInformation($"Copying directory: {sourceDir} to {targetDir}");
 
-        foreach (string file in Directory.GetFiles(sourceDir))
+        foreach (string file in Directory.GetFiles(sourceDir))                                                  // This method copies all files and directories from the source directory to the target directory
         {
+
             string targetFilePath = Path.Combine(targetDir, Path.GetFileName(file));
             File.Copy(file, targetFilePath, true);
             _logger.LogInformation($"Copied file: {file} to {targetFilePath}");
@@ -74,7 +75,7 @@ public class Worker : BackgroundService
         foreach (string directory in Directory.GetDirectories(sourceDir))
         {
             string targetDirectoryPath = Path.Combine(targetDir, Path.GetFileName(directory));
-            CopyDirectory(directory, targetDirectoryPath);
+            CopyDirectory(directory, targetDirectoryPath);   
         }
     }
 }
